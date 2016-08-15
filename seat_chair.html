@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+
+<style type="text/css">
+
+.line{
+
+overflow:hidden
+}
+.seat{
+margin:2px;
+float:left;
+width:30px;
+height:30px;
+background:red;
+border-radius:3px;}
+.nothing{
+background:white;
+}
+
+.enable{
+background:gray;}
+.enable:hover{
+background:black;}
+.disable{
+background:red;}
+</style>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.12.4.js">
+
+</script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+	var socket=io.connect();
+	socket.on('reserve', function(data){
+		var $target=$('div[data-x='+data.x+'][data-y='+data.y+']');
+		$target.removeClass('enable')
+		$target.addClass('disable');
+	})
+	
+</script>
+
+<script type="text/javascript">
+$(function(){
+	var onClickSeat=function(){
+		var x=$(this).attr('data-x');
+		var y=$(this).attr('data-y');
+		if(confirm("좌석을 예약하시겠습니까?")){
+			$(this).off('click');
+		socket.emit('reserve', {
+			x:x,
+			y:y
+			
+		})
+		}else{
+			alert('취소되었습니다. ')
+		}
+	};
+
+	$.getJSON('/seats',{
+		dummy:new Date().getTime()
+	},function(data){
+		//data는 [1,1,0,1...],[1,1,0,1....]
+		$.each(data, function(indexY,line){
+			//indexY는 행. line은 첫번째 제이슨 값. 
+			var $line=$('<div></div>').addClass('line');
+			//<div> line을 만들어주고 그 안에다가....
+			$.each(line,function(indexX,seat){
+				//순서대로 넣기위해 첫번째 파라미터 index를 넣는다. 0부터 시작. data-x는 그래서 0부터 시작. 
+				var $output=$('<div></div>',{
+					'class':'seat',
+					'data-x':indexX,
+					'data-y':indexY
+				}).appendTo($line);
+				if(seat==1){
+					$output.addClass('enable').on('click',onClickSeat);
+				}else if(seat==2){
+					$output.addClass('disable');
+				}else{
+					$output.addClass('nothing')
+				}
+			})
+		$line.appendTo('body');
+		})
+	})
+})
+</script>
+</head>
+<body>
+
+</body>
+</html>

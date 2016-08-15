@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"/>
+<script type="text/javascript"
+	src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<script type="text/javascript">
+window.onload=function(){
+	
+	var room=prompt("방 이름을 입력하세요:");
+	var socket=io.connect();
+	//소켓에 방 이름을  join의 매개로 보냄. 
+	socket.emit('join',room);
+	
+	//소켓이벤트가 연결되면 받은 dats를 뿌려준다. 
+	socket.on('message',function(data){
+		var output='';
+		output+='<li>';
+		output+='<h3>'+data.name+'</h3>';
+		output+='<p>'+data.message+'</p>';
+		output+='<p>'+data.date+'</p>'
+		output+='</li>';
+		$(output).prependTo('#content');
+		$('#content').listview('refresh');
+	});
+	
+	
+	//버튼을 누르면 쓴 텍스트를 socket에 메세제란 이름으로보냄. 메세지란 이름으로 보내면 서버에서 메세지란 이름으로 받음. 
+	/* document.getElementById('button').onclick=function(){
+		var text1=$('#text').val();
+		socket.emit('message', {
+		text:text1
+		});
+		} */
+		
+		$('button').click(function(){
+				date=new Date();
+				alert(date);
+			socket.emit('message',{
+				name:$('#name').val(),
+				message:$('#text').val(),
+				date:date
+			});
+		})
+	};
+	/* var socket=io.connect();
+	socket.on('smart',function(data){
+		alert(data);
+	});
+	document.getElementById('button').onclick=function(){
+		var text=document.getElementById('text').value;
+		socket.emit('rint',text);
+	} */
+</script>
+</head>
+<body>
+	<div data-role="page">
+		<div data-role="header">
+			<h1>Socket.io chat</h1>
+			
+		</div>
+		<div data-role="content">
+			<h3>Nick name</h3>
+			<input id="name"/>
+			<a data-role="button" href="#chatpage">Start cha222t</a>
+		</div>
+	</div>
+	<div data-role="page" id="chatpage">
+		<div data-role="header">
+			<h1>socket.io.Chat</h1>
+		</div>
+		<div data-role="content">
+<input type="text" id="text">
+<button>Button</button>
+<ul id="content" data-role="listview" data-insert="true"></ul>
+		</div>
+	</div>
+
+</body>
+</html>

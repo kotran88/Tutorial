@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css"/>
+<script type="text/javascript"
+	src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script type="text/javascript">
+$(function(){
+	//ui-icon-heart 에서 ui-icon-check로 클래스를 변경해준다. 변경과 함께 아이콘 변경됨. 
+	function changeIcon(target,from,to){
+		$(target).removeClass(from).addClass(to);
+	}
+	
+	//서버에서 갯수를 하나 줄인 카운트를 받아서  그것을 프론트에 뿌려준다. 
+	function changeCount(index,count){
+		$('li[data-index='+index+'] .ui-li-count').html(count);
+	}
+	
+	function changeLeftTime(index,count){
+			
+		$('li[data-index='+index+'] .ui-li-time').html(count);
+		}
+	
+	
+	var socket=io.connect();
+	socket.on('count', function(data){
+		
+		changeCount(data.index,data.count);
+	})
+	
+	socket.on('timeout', function(data){
+		changeLeftTime(data.index,data.time);
+	})
+	$('.product> a[data-icon]').click(function(){
+		if($(this).attr('toggle')!='off'){
+			var index=$(this).attr('data-index');
+			socket.emit('cart',Number(index));
+			changeIcon(this, 'ui-icon-heart', 'ui-icon-check');
+			$(this).attr('toggle','off');
+		}else{
+			var index=$(this).attr('data-index');
+			if(confirm('buy?')){
+				socket.emit('buy',Number(index));
+				$(this).parent().remove();
+				$('#listview').listview('refresh');
+			}else{
+				socket.emit('return', Number(index));
+				changeIcon(this, 'ui-icon-check','ui-icon-heart');
+				$(this).attr('toggle','on')
+				$('li[data-index='+index+'] .ui-li-time').attr('toggle','on')
+			}
+			
+		}
+	})
+	
+})
+</script>
+<title>Insert title here</title>
+</head>
+<body>
+	<div data-role="page">
+		<div data-role="header">
+			<h1>Store</h1>
+		</div>
+		<div data-role="content">
+			<ul id="listview" data-role="listview" data-insert="true"
+			data-filter="true">
+				<li data-role="list_divider">products</li>
+				<%products.forEach(function(item,index){%>
+				<li class="product" data-index="<%=item.index%>">
+					<a href="#">
+						<img src="chorme.png">
+						<h3><%=item.name%></h3>
+						<p><%=item.price%></p>
+						<span class="ui-li-time">Time Left</span>
+						<span class="ui-li-count"><%=item.count%></span>
+					</a>
+					<a href="#" data-icon="heart" data-index="<%=item.index%>"></a>
+					</li>
+					<%});%>
+			</ul>
+		</div>
+	</div>
+</body>
+</html>

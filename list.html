@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+<a href="/insert">insert data</a>
+<hr/>
+<table width="100%" border="1">
+	<tr>
+	<td>Delete</td>
+	<td>Edit</td>
+	<td>Id</td>
+	<td>Name</td>
+	<td>Model Number</td>
+	<td>Series</td>
+	</tr>
+	<% data.forEach(function(item,index){
+	%>
+	<tr>
+	<td><a href="/delete/<%=item.id%>">Delete</a></td>
+	<td><a href="/edit/<%=item.id%>">Edit</a></td>
+	<td><%=item.id%></td>
+	<td><%=item.name%></td>
+	<td><%=item.modelnumber%></td>
+	<td><%=item.series%></td>
+	</tr>
+	<%});%>
+	
+</table>
+</body>
+</html>
